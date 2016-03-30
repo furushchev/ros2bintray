@@ -12,6 +12,7 @@ env:
     - DEB_ARCH=amd64
     - BINTRAY_REPOSITORY=furushchev/ros-shadow-fixed
     - BINTRAY_USER=furushchev
+    - UPLOAD_CONCURRENCY=4
 before_script:
   - sudo sh -c "echo \"deb http://$APT_URL/$APT_REPO/ubuntu $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
