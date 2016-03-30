@@ -6,9 +6,13 @@ warn()
 {
     echo -e "\e[33m [Warn] $@ \e[m"
 }
-panic()
+error()
 {
     echo -e "\e[1;31m [Error] $@ \e[m"
+}
+panic()
+{
+    error "$@"
     echo "Aborting..."
     exit 1
 }
@@ -68,8 +72,10 @@ upload_content()
     RET=`curl -T $deb_path -u$BINTRAY_USER:$BINTRAY_API_KEY "$BINTRAY_BASE_URL/content/$BINTRAY_REPOSITORY/$pkg_name/$version/$deb_name;deb_distribution=$DEB_DISTRIBUTION;deb_component=$DEB_COMPONENT;deb_architecture=$arch;publish=1;override=0"`
     if echo $RET | jq '.message' | grep "already exists"; then
         warn "failed to upload: `echo $RET | jq '.message'`"
+    elif echo $RET | jq '.message' | grep "Entity Too Large"; then
+        error "skip uploading $1: `echo $RET | jq '.message'`"
     elif [ "`echo $RET | jq '.message'`" != "\"success\"" ]; then
-        panic "failed to upload: `echo $RET | jq '.'`"
+        panic "failed to upload: `echo $RET | jq '.message'`"
     fi
 }
 
