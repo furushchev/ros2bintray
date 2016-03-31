@@ -2,6 +2,10 @@
 
 #set -x
 #
+info()
+{
+    echo "[Info] $@"
+}
 warn()
 {
     echo -e "\e[33m [Warn] $@ \e[m"
@@ -58,6 +62,8 @@ create_package()
         warn "`echo $RET | jq '.message'`"
     elif [ "`echo $RET | jq '.name'`" != "" ]; then
         panic "failed to create package: $RET"
+    else
+        info "created package: `echo $RET | jq '.name'`"
     fi
 }
 
@@ -76,9 +82,11 @@ upload_content()
         error "skip uploading $1: `echo $RET | jq '.message'`"
     elif [ "`echo $RET | jq '.message'`" != "\"success\"" ]; then
         panic "failed to upload: `echo $RET | jq '.message'`"
+    else
+        info "uploaded: $pkg_name"
     fi
 }
 
+info "uploading package $1"
 create_package $1
 upload_content $1
-
