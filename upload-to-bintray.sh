@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#set -x
+export LANG=C
+set -x
 #
 info()
 {

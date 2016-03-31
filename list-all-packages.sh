@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+export LANG=C
+#set -x
+#
 : ${APT_URL:="packages.ros.org"}
 : ${APT_REPO:="ros-shadow-fixed"}
 : ${DEB_DISTRIBUTION:="trusty"}
