@@ -24,7 +24,11 @@ panic()
 #
 defvar()
 {
-    local val secret
+    local val silent
+    if [ "$1" = "-s" ]; then
+        silent="true"
+        shift
+    fi
     val=$(eval echo '$'"$1")
     if [ "$val" = "" ]; then
         if [ $# -lt 2 ]; then
@@ -32,20 +36,23 @@ defvar()
         else
             eval $(echo $1)="\"${@:2:($#-1)}\""
         fi
-    else
-        if [ "$2" = "-s" ]; then
-            secret="true"
-        fi
     fi
-    if [ "$secret" != "true" ]; then
+    if [ "$silent" != "true" ]; then
         declare -p $(echo $1)
     fi
 }
 
 setq()
 {
+    local silent
+    if [ "$1" = "-s" ]; then
+        silent="true"
+        shift
+    fi
     eval $(echo $1)="\"${@:2:($#-1)}\""
-    declare -p $(echo $1)
+    if [ "$silent" != "true" ]; then
+        declare -p $(echo $1)
+    fi
 }
 
 validate_args()
@@ -57,18 +64,18 @@ validate_args()
 
     info checking arguments...
     # Environment
-    defvar DEB_DISTRIBUTION `lsb_release -cs`
-    defvar DEB_COMPONENT main
+    defvar -s DEB_DISTRIBUTION `lsb_release -cs`
+    defvar -s DEB_COMPONENT main
     # Downloading
-    defvar TEMP_DEBS_DIR /tmp/debs
-    defvar APT_MIRRORS "http://packages.ros.org/ros-shadow-fixed/ubuntu"
-    defvar DL_CONCURRENT_NUM 5
+    defvar -s TEMP_DEBS_DIR /tmp/debs
+    defvar -s APT_MIRRORS "http://packages.ros.org/ros-shadow-fixed/ubuntu"
+    defvar -s DL_CONCURRENT_NUM 5
     # Uploading
-    defvar BINTRAY_BASE_URL "https://api.bintray.com"
-    defvar BINTRAY_REPOSITORY
-    defvar BINTRAY_USER
-    defvar BINTRAY_API_KEY -s
-    defvar TEMP_DEBS_DIR "/tmp/debs"
+    defvar -s BINTRAY_BASE_URL "https://api.bintray.com"
+    defvar -s BINTRAY_REPOSITORY
+    defvar -s BINTRAY_USER
+    defvar -s BINTRAY_API_KEY
+    defvar -s TEMP_DEBS_DIR "/tmp/debs"
 }
 
 create_package()
@@ -108,7 +115,7 @@ get_deb_uri()
                 setq pkg_ver $(urldecode ${pkg_info[1]})
                 ;;
             Architecture:)
-                setq pkg_arch ${pkg_info[1]}
+                setq -s pkg_arch ${pkg_info[1]}
                 ;;
             Homepage:)
                 setq vcs_url ${pkg_info[1]}
@@ -117,14 +124,14 @@ get_deb_uri()
                 setq pkg_path ${pkg_info[1]}
                 ;;
             MD5sum:)
-                setq pkg_md5 ${pkg_info[1]}
+                setq -s pkg_md5 ${pkg_info[1]}
                 ;;
             Description:)
-                setq pkg_desc ${pkg_info[@]:1}
+                setq -s pkg_desc ${pkg_info[@]:1}
                 ;;
         esac
     done < <(apt-cache show -q $pkg_name)
-    defvar vcs_url "https://github.com/" # dummy
+    defvar -s vcs_url "https://github.com/" # dummy
 }
 
 download_deb()
@@ -146,9 +153,9 @@ download_deb()
         --out=$(basename "$pkg_path") \
         --checksum=md5=$pkg_md5 \
         --quiet=true \
-	--log=- \
-	--log-level=notice \
-	$uris
+  --log=- \
+  --log-level=warn \
+  $uris
     ret=$?
     if [ $ret != 0 ]; then
         panic "failed to download: $ret $(ls -lFa $(dirname $pkg_local_path))"
