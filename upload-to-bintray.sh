@@ -128,6 +128,9 @@ get_deb_uri()
                 ;;
         esac
     done < <(apt-cache show -q $pkg_name)
+    if [ ! -z $vcs_url ]; then
+        vcs_url="http://github.com/"
+    fi
 }
 
 download_deb()
