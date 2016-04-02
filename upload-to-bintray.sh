@@ -133,13 +133,14 @@ get_deb_uri()
 
 download_deb()
 {
-    local mirrors mirror uri uris
+    local mirrors mirror uri uris pkg_local_path
     mirrors=${APT_MIRRORS//,/ }
     for mirror in `echo $mirrors`; do
         uris="$uris \"$mirror/$pkg_path\" "
     done
-    info downloading debian package...
-    aria2c \
+    pkg_local_path="$TEMP_DEBS_DIR/$(basename \"$pkg_path\")"
+    info "downloading debian package to $pkg_local_path..."
+    RET=`aria2c \
         --continue=true \
         --max-concurrent-downloads=$DL_CONCURRENT_NUM \
         --max-connection-per-server=$DL_CONCURRENT_NUM \
@@ -149,7 +150,10 @@ download_deb()
         --out=$(basename "$pkg_path") \
         --checksum=md5=$pkg_md5 \
         --quiet=true \
-        $uris
+        $uris`
+    if [ ! -e "$pkg_local_path" ]; then
+        panic "failed to download: $RET"
+    fi
 }
 
 upload_content()
