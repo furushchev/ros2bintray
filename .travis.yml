@@ -12,7 +12,7 @@ env:
     - TEMP_DEBS_DIR="/tmp/debs"
     - BINTRAY_REPOSITORY="furushchev/ros-shadow-fixed"
     - BINTRAY_USER=furushchev
-    - MAX_PROCS=1
+    - MAX_PROCS=5
     - DL_CONCURRENT_NUM=5
 before_script:
   - export DEB_DISTRIBUTION=`lsb_release -cs`
