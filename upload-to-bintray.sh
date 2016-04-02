@@ -68,11 +68,7 @@ validate_args()
     defvar BINTRAY_REPOSITORY
     defvar BINTRAY_USER
     defvar BINTRAY_API_KEY -s
-
-    if [ -e $TEMP_DEBS_DIR ]; then
-        rm -rf $TEMP_DEBS_DIR
-    fi
-    mkdir $TEMP_DEBS_DIR
+    defvar TEMP_DEBS_DIR "/tmp/debs"
 }
 
 create_package()
@@ -133,14 +129,14 @@ get_deb_uri()
 
 download_deb()
 {
-    local mirrors mirror uri uris pkg_local_path
+    local mirrors mirror uri uris pkg_local_path ret
     mirrors=${APT_MIRRORS//,/ }
     for mirror in `echo $mirrors`; do
-        uris="$uris \"$mirror/$pkg_path\" "
+        uris="$uris $mirror/$pkg_path "
     done
     pkg_local_path="$TEMP_DEBS_DIR/$(basename \"$pkg_path\")"
     info "downloading debian package to $pkg_local_path..."
-    RET=`aria2c \
+    aria2c \
         --continue=true \
         --max-concurrent-downloads=$DL_CONCURRENT_NUM \
         --max-connection-per-server=$DL_CONCURRENT_NUM \
@@ -150,9 +146,12 @@ download_deb()
         --out=$(basename "$pkg_path") \
         --checksum=md5=$pkg_md5 \
         --quiet=true \
-        $uris`
-    if [ ! -e "$pkg_local_path" ]; then
-        panic "failed to download: $RET"
+	--log=- \
+	--log-level=notice \
+	$uris
+    ret=$?
+    if [ $ret != 0 ]; then
+        panic "failed to download: $ret $(ls -lFa $(dirname $pkg_local_path))"
     fi
 }
 
