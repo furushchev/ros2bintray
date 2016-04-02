@@ -17,6 +17,6 @@ before_script:
   - sudo sh -c "echo \"deb http://$APT_URL/$APT_REPO/ubuntu $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq -y
-  - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq
+  - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq aria2
 script:
   - ./build.sh

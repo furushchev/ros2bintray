@@ -24,15 +24,22 @@ panic()
 #
 defvar()
 {
-    local v=$(eval echo '$'"$1")
-    if [ "$v" = "" ]; then
-	if [ $# -lt 2 ]; then
-	    panic variable $(echo $1) is not defined
-	else
-	    eval $(echo $1)="\"${@:2:($#-1)}\""
-	fi
+    local val secret
+    val=$(eval echo '$'"$1")
+    if [ "$val" = "" ]; then
+        if [ $# -lt 2 ]; then
+            panic variable $(echo $1) is not defined
+        else
+            eval $(echo $1)="\"${@:2:($#-1)}\""
+        fi
+    else
+        if [ "$2" = "-s" ]; then
+            secret="true"
+        fi
     fi
-    declare -p $(echo $1)
+    if [ "$secret" != "true" ]; then
+        declare -p $(echo $1)
+    fi
 }
 
 setq()
@@ -44,7 +51,7 @@ setq()
 validate_args()
 {
     if [ $# -ne 1 ]; then
-	panic "Usage: $0 <package name>"
+        panic "Usage: $0 <package name>"
     fi
     pkg_name=$1
 
@@ -60,10 +67,10 @@ validate_args()
     defvar BINTRAY_BASE_URL "https://api.bintray.com"
     defvar BINTRAY_REPOSITORY
     defvar BINTRAY_USER
-    defvar BINTRAY_API_KEY
+    defvar BINTRAY_API_KEY -s
 
     if [ -e $TEMP_DEBS_DIR ]; then
-	rm -rf $TEMP_DEBS_DIR
+        rm -rf $TEMP_DEBS_DIR
     fi
     mkdir $TEMP_DEBS_DIR
 }
@@ -97,29 +104,29 @@ get_deb_uri()
     local pkg_info
     info getting information of $pkg_name ...
     while read -a pkg_info; do
-	case $pkg_info in
-	    Package:)
-		setq pkg_name ${pkg_info[1]}
-		;;
-	    Version:)
-		setq pkg_ver $(urldecode ${pkg_info[1]})
-		;;
-	    Architecture:)
-		setq pkg_arch ${pkg_info[1]}
-		;;
-	    Homepage:)
-		setq vcs_url ${pkg_info[1]}
-		;;
-	    Filename:)
-		setq pkg_path ${pkg_info[1]}
-		;;
-	    MD5sum:)
-		setq pkg_md5 ${pkg_info[1]}
-		;;
-	    Description:)
-		setq pkg_desc ${pkg_info[@]:1}
-		;;
-	esac
+        case $pkg_info in
+            Package:)
+                setq pkg_name ${pkg_info[1]}
+                ;;
+            Version:)
+                setq pkg_ver $(urldecode ${pkg_info[1]})
+                ;;
+            Architecture:)
+                setq pkg_arch ${pkg_info[1]}
+                ;;
+            Homepage:)
+                setq vcs_url ${pkg_info[1]}
+                ;;
+            Filename:)
+                setq pkg_path ${pkg_info[1]}
+                ;;
+            MD5sum:)
+                setq pkg_md5 ${pkg_info[1]}
+                ;;
+            Description:)
+                setq pkg_desc ${pkg_info[@]:1}
+                ;;
+        esac
     done < <(apt-cache show -q $pkg_name)
 }
 
@@ -128,11 +135,11 @@ download_deb()
     local mirrors mirror uri uris
     mirrors=${APT_MIRRORS//,/ }
     for mirror in `echo $mirrors`; do
-	uris="$uris \"$mirror/$pkg_path\" "
+        uris="$uris \"$mirror/$pkg_path\" "
     done
     info downloading debian package...
     aria2c \
-	--continue=true \
+        --continue=true \
         --max-concurrent-downloads=$DL_CONCURRENT_NUM \
         --max-connection-per-server=$DL_CONCURRENT_NUM \
         --split=5 \
