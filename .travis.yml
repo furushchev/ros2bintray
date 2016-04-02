@@ -6,15 +6,15 @@ dist: trusty
 sudo: required
 env:
   global:
-    - APT_URL=packages.ros.org
-    - APT_REPO=ros-shadow-fixed
-    - DEB_DISTRIBUTION=trusty
-    - DEB_ARCH=amd64
-    - BINTRAY_REPOSITORY=furushchev/ros-shadow-fixed
+    - APT_MIRRORS="http://packages.ros.org/ros-shadow-fixed/ubuntu"
+    - DEB_DISTRIBUTION="trusty"
+    - TEMP_DEBS_DIR="/tmp/debs"
+    - BINTRAY_REPOSITORY="furushchev/ros-shadow-fixed"
     - BINTRAY_USER=furushchev
-    - UPLOAD_CONCURRENCY=1
+    - MAX_PROCS=4
+    - DL_CONCURRENT_NUM=5
 before_script:
-  - sudo sh -c "echo \"deb http://$APT_URL/$APT_REPO/ubuntu $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
+  - sudo sh -c "echo \"deb http://packages.ros.org/ros-shadow-fixed/ubuntu $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq -y
   - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq aria2

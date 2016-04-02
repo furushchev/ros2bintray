@@ -4,6 +4,6 @@ export LANG=C
 set -e
 #set -x # for debug
 #
-: ${UPLOAD_CONCURRENCY:=4}
+: ${MAX_PROCS:=1}
 #
-./list-all-packages.sh | xargs -i --max-procs=$UPLOAD_CONCURRENCY ./upload-to-bintray.sh {}
+./list-all-packages.sh | xargs -i --max-procs=$MAX_PROCS ./upload-to-bintray.sh {}
