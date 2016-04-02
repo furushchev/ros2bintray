@@ -164,7 +164,7 @@ upload_content()
     elif echo $RET | jq '.message' | grep "Entity Too Large"; then
         error "skip uploading $1: `echo $RET | jq '.message'`"
     elif [ "`echo $RET | jq '.message'`" != "\"success\"" ]; then
-        panic "failed to upload: `echo $RET | jq '.message'`"
+        panic "failed to upload: `echo $RET | jq '.'`"
     else
         info "uploaded: $pkg_name"
     fi

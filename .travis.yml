@@ -6,6 +6,7 @@ dist: trusty
 sudo: required
 env:
   global:
+    - APT_REPO="http://packages.ros.org/ros-shadow-fixed/ubuntu"
     - APT_MIRRORS="http://packages.ros.org/ros-shadow-fixed/ubuntu"
     - DEB_DISTRIBUTION="trusty"
     - TEMP_DEBS_DIR="/tmp/debs"
@@ -14,7 +15,8 @@ env:
     - MAX_PROCS=4
     - DL_CONCURRENT_NUM=5
 before_script:
-  - sudo sh -c "echo \"deb http://packages.ros.org/ros-shadow-fixed/ubuntu $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
+  - export DEB_DISTRIBUTION=`lsb_release -cs`
+  - sudo sh -c "echo \"deb $APT_REPO $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq -y
   - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq aria2

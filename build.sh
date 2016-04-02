@@ -2,6 +2,7 @@
 #
 export LANG=C
 set -e
+set -o pipefail
 #set -x # for debug
 #
 : ${MAX_PROCS:=1}
