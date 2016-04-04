@@ -14,7 +14,7 @@ env:
     - BINTRAY_USER=furushchev
     - MAX_PROCS=10
     - DL_CONCURRENT_NUM=5
-    - DEB_DISTRIBUTION=`lsb_release -cs`
+    - DEB_DISTRIBUTION="`lsb_release -cs`"
     - LOG_FILE="/tmp/log.txt"
 before_script:
   - sudo sh -c "echo \"deb $APT_REPO $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
