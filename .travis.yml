@@ -12,13 +12,16 @@ env:
     - TEMP_DEBS_DIR="/tmp/debs"
     - BINTRAY_REPOSITORY="furushchev/ros-shadow-fixed"
     - BINTRAY_USER=furushchev
-    - MAX_PROCS=5
+    - MAX_PROCS=10
     - DL_CONCURRENT_NUM=5
+    - DEB_DISTRIBUTION=`lsb_release -cs`
+    - LOG_FILE="/tmp/log.txt"
 before_script:
-  - export DEB_DISTRIBUTION=`lsb_release -cs`
   - sudo sh -c "echo \"deb $APT_REPO $DEB_DISTRIBUTION main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq -y
   - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq aria2
 script:
   - ./build.sh
+after_failure:
+  - tail $LOG_FILE
