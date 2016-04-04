@@ -1,4 +1,4 @@
-git clone git@gist.github.com:cf8bc5dc782a0552c97229f0496623f3.git env-local
+git clone https://gist.github.com/dd017054d02d167f070a4309dd73e0e4 env-local
 mv env-local/env-local.sh env-local.sh
 chmod +x env-local.sh
 
