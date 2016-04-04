@@ -81,7 +81,7 @@ validate_args()
 create_package()
 {
     info creating package to bintray...
-    RET=$(curl -H 'Accept: application/json' -H 'Content-type: application/json' -X POST -d "{
+    RET=$(curl --silent -H 'Accept: application/json' -H 'Content-type: application/json' -X POST -d "{
   \"name\": \"$pkg_name\",
   \"desc\": \"$pkg_desc\",
   \"licenses\": [\"Unlicense\"],
@@ -109,19 +109,19 @@ get_deb_uri()
     while read -a pkg_info; do
         case $pkg_info in
             Package:)
-                setq pkg_name ${pkg_info[1]}
+                setq -s pkg_name ${pkg_info[1]}
                 ;;
             Version:)
-                setq pkg_ver $(urldecode ${pkg_info[1]})
+                setq -s pkg_ver $(urldecode ${pkg_info[1]})
                 ;;
             Architecture:)
                 setq -s pkg_arch ${pkg_info[1]}
                 ;;
             Homepage:)
-                setq vcs_url ${pkg_info[1]}
+                setq -s vcs_url ${pkg_info[1]}
                 ;;
             Filename:)
-                setq pkg_path ${pkg_info[1]}
+                setq -s pkg_path ${pkg_info[1]}
                 ;;
             MD5sum:)
                 setq -s pkg_md5 ${pkg_info[1]}
@@ -168,7 +168,7 @@ upload_content()
     deb_name=$(basename "$pkg_path")
     deb_path=$(echo $TEMP_DEBS_DIR/$deb_name)
     info uploading debian package to bintray...
-    RET=`curl -T $deb_path -u$BINTRAY_USER:$BINTRAY_API_KEY "$BINTRAY_BASE_URL/content/$BINTRAY_REPOSITORY/$pkg_name/$pkg_ver/$deb_name;deb_distribution=$DEB_DISTRIBUTION;deb_component=$DEB_COMPONENT;deb_architecture=$pkg_arch;publish=1;override=0"`
+    RET=`curl --silent -T $deb_path -u$BINTRAY_USER:$BINTRAY_API_KEY "$BINTRAY_BASE_URL/content/$BINTRAY_REPOSITORY/$pkg_name/$pkg_ver/$deb_name;deb_distribution=$DEB_DISTRIBUTION;deb_component=$DEB_COMPONENT;deb_architecture=$pkg_arch;publish=1;override=0"`
     if echo $RET | jq '.message' | grep "already exists"; then
         warn "failed to upload: `echo $RET | jq '.message'`"
     elif echo $RET | jq '.message' | grep "Entity Too Large"; then
