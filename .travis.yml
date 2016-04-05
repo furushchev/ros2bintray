@@ -1,6 +1,7 @@
 ---
 language:
   - generic
+rvm: 2.2
 os: linux
 dist: trusty
 sudo: required
@@ -21,7 +22,9 @@ before_script:
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq -y
   - sudo apt-get install -qq -y python-rosinstall-generator lsb-release sed grep gawk aptitude curl jq aria2
+  - gem install gist --no-document
 script:
   - ./build.sh
+  - gist $LOG_FILE
 after_failure:
   - tail --lines=100000 $LOG_FILE

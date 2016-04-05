@@ -17,7 +17,7 @@ fi
 mkdir -p "$TEMP_DEBS_DIR"
 
 if [ "$LOG_FILE" != "" ]; then
-    LOG_SUFFIX=" 1> $LOG_FILE 2>&1"
+    LOG_SUFFIX=" 1>> $LOG_FILE 2>&1"
 fi
 
 ./list-all-packages.sh | xargs -i -t -r --max-procs=$MAX_PROCS bash -c "./upload-to-bintray.sh {} $LOG_SUFFIX"
